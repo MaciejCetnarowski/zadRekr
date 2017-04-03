@@ -1,5 +1,6 @@
 
+var sluzba = $.getJSON('sluzba.json', function(data) {
 
-$.getJSON('sluzba.json', function(data) {
-  console.log(data)
 });
+
+console.log(sluzba);
