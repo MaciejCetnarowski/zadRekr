@@ -39,13 +39,23 @@ fetch(baza)
         console.log('failed to fetch', err);
     })
 
+
+
+
+// let test = [];
+// test = fetch('sluzba.json').then(function(response){
+//   return response.blob();
+// })
+// .then(function(myBlob){
+//   var objectURL = URL.createObjectURL(myBlob);
+//   myImage.src = objectURL;
+// })
 let test = [];
-test = fetch('sluzba.json').then(function(response){
-  return response.blob();
-})
-.then(function(myBlob){
-  var objectURL = URL.createObjectURL(myBlob);
-  myImage.src = objectURL;
+test = fetch('sluzba.json')
+.then(blob=>blob.json())
+.then(data=>test.push(...data))
+.catch((err)=>{
+  console.info('Cos poszlo nie tak')
 })
 
 
