@@ -51,7 +51,7 @@ fetch(baza)
 //   myImage.src = objectURL;
 // })
 let test = [];
-test = fetch('sluzba.json')
+fetch('sluzba.json')
 .then(blob=>blob.json())
 .then(data=>test.push(...data))
 .catch((err)=>{
@@ -117,8 +117,7 @@ function sortowanie() {
         return afterSort;
     }
     if (sort === 'dateOfBirth') {
-        let timeArray = [];
-        var nowaSluzba = sluzba;
+        // let timeArray = [];
         const afterSort = sluzba.sort((a, b) =>
             a.dateOfBirth > b.dateOfBirth ? -ks : ks
         )
