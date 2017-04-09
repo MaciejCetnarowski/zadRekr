@@ -26,11 +26,14 @@ thead {
   margin: 50px auto 0;
   border-collapse: collapse; }
 
-.innerTable, th, td {
+.innerTable,
+td,
+th {
   border: 2px solid #44DC70;
   text-align: center; }
 
-.innerTable th, .innerTable td {
+.innerTable td,
+.innerTable th {
   padding: 0.6rem 1rem; }
 
 .table-header th span {
@@ -117,8 +120,8 @@ thead {
 
 input[type="button"] {
   cursor: pointer;
-  -webkit-transition: all .3s;
-          transition: all .3s;
+  -webkit-transition: all 0.3s;
+          transition: all 0.3s;
   border: 1px solid #ddd;
   padding: 8px 16px;
   text-decoration: none;
