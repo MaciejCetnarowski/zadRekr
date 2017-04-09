@@ -35,7 +35,6 @@ function convertDate() {
             dataSplit[0] = dataSplit[1];
             dataSplit[1] = dataSplitDzien;
             let validDate = dataSplit + ' ' + godzina;
-            12: 09
             let formattedDate = validDate.replace(/,/gi, '.').trim();
             let liczbaDate = formattedDate;
             let zamiennik = liczbaDate.valueOf()
