@@ -18,7 +18,6 @@
 JSON jeszcze do ogarnięcia
 */
 'use strict'
-
 const filterButtons = document.querySelectorAll('.filter-buttons button');
 const titles = document.querySelectorAll('.table-header');
 const tabela = document.querySelector('.table-content');
@@ -31,6 +30,7 @@ const baza = 'https://api.myjson.com/bins/zothv';
 let sluzba = [];
 var ks = 1; //kolejność sortowania
 var dateConvert = 0; //Zapobiega wielokrotnemu wykonywaniu się convertDate()
+var timeToLoad = 1400; //Daje czas na załadowanie się danych >> setTimeout l.
 
 fetch(baza)
     .then(blob => blob.json())
@@ -38,6 +38,26 @@ fetch(baza)
     .catch((err) => {
         console.log('failed to fetch', err);
     })
+
+let test = [];
+test = fetch('sluzba.json').then(function(response){
+  return response.blob();
+})
+.then(function(myBlob){
+  var objectURL = URL.createObjectURL(myBlob);
+  myImage.src = objectURL;
+})
+
+
+console.log('test =',test);
+
+
+
+
+
+
+
+
 
 
 function convertDate() {
@@ -56,26 +76,21 @@ function convertDate() {
             dataSplit[1] = dataSplitDzien; //Poprawny format danych MM/DD/YYYY
             let validDate = dataSplit + ' ' + godzina; //validDate 03,29,1980 12:09
             let formattedDate = validDate.replace(/,/gi, '.').trim();
-            // console.log(validDate)
-            // console.log('po:', formattedDate)
-
             // Tutaj zamieniam datę na liczbę >> dla pozniejszego sortowania
             // let liczbaDate = new Date(formattedDate);
-// test
-let liczbaDate =formattedDate;
+            // test
+            let liczbaDate = formattedDate;
             //ponizej działa
             // liczbaDate.toUTCString('en-GB');s //liczba =>liczbaDate
             let zamiennik = liczbaDate.valueOf()
             var za = new Date(zamiennik);
-            console.log('za',za,'zamiennik',zamiennik,'liczbDate',liczbaDate,'formattedDate',formattedDate)
+            console.log('za', za, 'zamiennik', zamiennik, 'liczbDate', liczbaDate, 'formattedDate', formattedDate)
             // alert(za.toString());
             time.dateOfBirth = za; //liczba =>liczbaDate
         })
         dateConvert = 1;
     }
 }
-
-
 
 function sortowanie() {
     innerThead();
@@ -111,22 +126,20 @@ function sortowanie() {
     return afterSort;
 }
 
-function innerThead() {
+ function innerThead(){
     thead.innerHTML = `
-<th>Imię</th>
-<th>Nazwisko</th>
-<th>ID</th>
-<th>Data Urodzenia</th>
-<th>Zawód</th>
-<th>Doświadczenie</th>`
+    <th>Imię</th>
+    <th>Nazwisko</th>
+    <th>ID</th>
+    <th>Data Urodzenia <span>(DD.MM.YYYY)</span></th>
+    <th>Zawód</th>
+    <th>Doświadczenie <span>(Lata)</span></th>`
 }
 
 function showArray() {
-  console.log('showArray - run',sluzba)
-
     const result = sluzba.map((person) => {
         let a = person.dateOfBirth; //data urodzenia sługi
-        a = a.getDate() + '.' + (a.getMonth()+1) + '.' + a.getFullYear() + ' ' + a.getHours() + ':' + a.getMinutes();
+        a = a.getDate() + '.' + (a.getMonth() + 1) + '.' + a.getFullYear() + ' ' + a.getHours() + ':' + a.getMinutes();
         return `
     <tr>
       <td>${person.firstName}</td>
@@ -144,14 +157,13 @@ function showArray() {
 function findMatches(wordToMatch, sluzba) {
     return sluzba.filter(person => {
         const regex = new RegExp(wordToMatch, 'gi');
-        console.log(regex)
-        let dob = person.dateOfBirth;
-dob = dob.getDate()+'.'+(dob.getMonth()+1)+'.'+dob.getFullYear()+' '+dob.getHours()+':'+dob.getMinutes();
+        let d = person.dateOfBirth;
+        d = d.getDate() + '.' + (d.getMonth() + 1) + '.' + d.getFullYear() + ' ' + d.getHours() + ':' + d.getMinutes();
 
         return person.firstName.match(regex) ||
             person.lastName.match(regex) ||
             person.id.toString().match(regex) ||
-            dob.toString().match(regex) ||
+            d.toString().match(regex) ||
             person.function.match(regex) ||
             person.experience.toString().match(regex);
     });
@@ -161,18 +173,16 @@ function displayMatches() {
     const matchArray = findMatches(this.value, sluzba);
     const array = matchArray.map(person => {
         const regex = new RegExp(this.value, 'gi');
-        let dob = person.dateOfBirth; // data urodzenia
-        // new Date(dob)
-        dob = dob.getDate()+'.'+(dob.getMonth()+1)+'.'+dob.getFullYear()+' '+dob.getHours()+':'+dob.getMinutes();
-        // console.log(dob)
-        // dtb.getFullYear()
+        let d = person.dateOfBirth; // data urodzenia
+        d = d.getDate() + '.' + (d.getMonth() + 1) + '.' + d.getFullYear() + ' ' + d.getHours() + ':' + d.getMinutes();
+
         //podswietlanie wordToMatch
         const firstName = person.firstName.replace(regex, `<span class="highlight">${this.value}</span>`)
         const lastName = person.lastName.replace(regex, `<span class="highlight">${this.value}</span>`)
         const id = person.id.toString().replace(regex, `<span class="highlight">${this.value}</span>`)
 
-//DO ZROBIENIA  DTB
-        const dateOfBirth = dob.toString().replace(regex, `<span class="highlight">${this.value}</span>`)
+        //DO ZROBIENIA  DTB
+        const dateOfBirth = d.toString().replace(regex, `<span class="highlight">${this.value}</span>`)
         const job = person.function.replace(regex, `<span class="highlight">${this.value}</span>`)
         const experience = person.experience.toString().replace(regex, `<span class="highlight">${this.value}</span>`)
         return `
@@ -189,27 +199,75 @@ function displayMatches() {
     tabela.innerHTML = array;
 }
 
-
+//Event listeners
 filterButtons.forEach((button) => button.addEventListener('click', sortowanie))
-filterButtons.forEach((button) => button.addEventListener('click', convertDate)  )
+filterButtons.forEach((button) => button.addEventListener('click', convertDate))
 filterButtons.forEach((button) => button.addEventListener('click', showArray))
-
-
+filterButtons.forEach((button) => button.addEventListener('click', define))
 searchInput.addEventListener('keyup', convertDate)
 searchInput.addEventListener('keyup', displayMatches)
+searchInput.addEventListener('keyup', define)
 
 
+function dPicker() {
+    $("#datepicker").datepicker({
+        dateFormat: 'd.m.yy',
+        changeMonth: true,
+        changeYear: true,
+        yearRange: '1930:2017',
+        onSelect: function(dateText, inst) {
+            $(".search").val(dateText);
+        }
+    });
+};
 
-// document.addEventListener('DOMContentLoaded',showArray);
-// console.log(show)
-// window.onload = showArray();
+// var tablica = Array.from(document.querySelectorAll('.table-content tr'))
+// let table = [];
+// table =  table.concat(tablica);
 $(document).ready(function() {
-    console.log("Ready!");
-    setTimeout(()=>{
-      convertDate();
-      showArray();
-    }
-    ,2000)
-    // showArray();
-
+    console.info("Ready!");
+    setTimeout(() => {
+        convertDate();
+        showArray();
+        dPicker();
+        // pagination();
+        define();
+    }, timeToLoad)
 });
+
+var $table,$n,$rowCount,$firstRow,$hasHead,$tr,$i,$ii,$j,$th;
+var $pageCount;
+
+function define(){
+  $table = document.querySelector(".table-content");
+  $n = 5; //ilosc wysiwetlanych elementow
+  $rowCount = $table.rows.length;
+  $firstRow = $table.rows[0].firstElementChild.tagName;
+  $hasHead = ($firstRow === "TH");
+  $tr = [];
+  $i,$ii,$j = ($hasHead)?1:0;
+  $th = ($hasHead?$table.rows[(0)].outerHTML:"");
+  $pageCount = Math.ceil($rowCount / $n);
+  if ($pageCount > 1) {
+  	for ($i = $j,$ii = 0; $i < $rowCount; $i++, $ii++)
+  	$tr[$ii] = $table.rows[$i].outerHTML;
+  	sort(1);
+  }
+}
+function sort($p) {
+	var $rows = $th,$s = (($n * $p)-$n);
+	for ($i = $s; $i < ($s+$n) && $i <  $tr.length; $i++)
+		$rows += $tr[$i];
+	$table.innerHTML = $rows;
+	document.querySelector("#buttons").innerHTML = pageButtons($pageCount,$p);
+  document.querySelector("#id"+$p).setAttribute("class","active");
+}
+function pageButtons($pCount,$cur) {
+	var	$prevDis = ($cur == 1)?"disabled":"",
+		$nextDis = ($cur == $pCount)?"disabled":"",
+		$buttons = "<input type='button' value='&lt;&lt; Prev' onclick='sort("+($cur - 1)+")' "+$prevDis+">";
+	for ($i=1; $i<=$pCount;$i++)
+		$buttons += "<input type='button' id='id"+$i+"'value='"+$i+"' onclick='sort("+$i+")'>";
+	$buttons += "<input type='button' value='Next &gt;&gt;' onclick='sort("+($cur + 1)+")' "+$nextDis+">";
+	return $buttons;
+}
